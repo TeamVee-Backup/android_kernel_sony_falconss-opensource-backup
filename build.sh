@@ -187,7 +187,7 @@ elif [ -e build.sh ]; then
 	bldcya=${txtbld}$(tput setaf 6) # cyan
 	bldwhi=${txtbld}$(tput setaf 7) # white
 
-	customkernel=XPERIAE1Kernel
+	customkernel=FalconSSKernel
 	export ARCH=arm
 
 	while true; do
