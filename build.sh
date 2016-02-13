@@ -12,31 +12,10 @@
 # Main Process - Start
 
 maindevice() {
-clear
-echo "-${bldgrn}Device choice${txtrst}-"
-echo
-bname=$name
-bdefconfig=$defconfig
-unset name defconfig
-echo "-${bldmag}WIP${txtrst}-"
-echo "0) ${bldred}Sony Xperia${txtrst} E1"
-echo
-echo "e) Exit"
-echo
-read -p "Choice: " -n 1 -s x
-case "$x" in
-	0 ) defconfig="msm8610_build_defconfig"; name="XperiaE1";;
-	e ) ;;
-	* ) ops;;
-esac
-if [ "$defconfig" == "" ]; then
-	name=$bname
-	defconfig=$bdefconfig
-	unset bname bvariant bdefconfig
-else
-	make $defconfig &> /dev/null | echo "$x - $name, setting..."
-	unset buildprocesscheck defconfigcheck
-fi
+defconfig="cyanogenmod_falconss_defconfig"
+name="XperiaE1"
+make $defconfig &> /dev/null | echo "$x - $name, setting..."
+unset buildprocesscheck defconfigcheck
 }
 
 maintoolchain() {
