@@ -1,0 +1,104 @@
+/* Copyright (c) 2013, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+&soc  {
+	qcom,dsi_v2_truly_wvga_video {
+		compatible = "qcom,dsi-panel-v2";
+		label = "Truly WVGA video mode dsi panel";
+		qcom,dsi-ctrl-phandle = <&mdss_dsi0>;
+		qcom,rst-gpio = <&msmgpio 41 0>;
+		qcom,mode-selection-gpio = <&msmgpio 7 0>;
+		vdda-supply = <&pm8110_l19>;
+		vddio-supply=<&pm8110_l14>;
+		qcom,mdss-pan-res = <480 800>;
+		qcom,mdss-pan-bpp = <24>;
+		qcom,mdss-pan-dest = "display_1";
+		qcom,mdss-pan-porch-values = <32 32 32 7 3 7>;  /*20130702 tracy change for fix TCL LCM upside white lines*/
+		qcom,mdss-pan-underflow-clr = <0xff>;
+		qcom,mdss-pan-bl-levels = <1 255>;
+		qcom,mdss-pan-bl-ctrl = "bl_ctrl_wled";
+		qcom,mdss-pan-dsi-mode = <0>;
+		qcom,mdss-pan-dsi-h-pulse-mode = <0>;
+		qcom,mdss-pan-dsi-h-power-stop = <0 0 0>;
+		qcom,mdss-pan-dsi-bllp-power-stop = <1 1>;
+		qcom,mdss-pan-dsi-traffic-mode = <1>;
+		qcom,mdss-pan-dsi-dst-format = <3>;
+		qcom,mdss-pan-dsi-vc = <0>;
+		qcom,mdss-pan-dsi-rgb-swap = <0>;
+		qcom,mdss-pan-dsi-data-lanes = <1 1 0 0>;
+		qcom,mdss-pan-dsi-dlane-swap = <1>; /* tracy for TCL LCM */
+		qcom,mdss-pan-dsi-t-clk = <0x18 0x04>;/*0x1b*//* tracy for TCL LCM */
+		qcom,mdss-pan-dsi-stream = <0>;
+		qcom,mdss-pan-dsi-mdp-tr = <0x0>;/*todo*/
+		qcom,mdss-pan-dsi-dma-tr = <0x04>;
+		qcom,mdss-pan-dsi-frame-rate = <60>;
+		qcom,panel-phy-regulatorSettings =[02 08 05 00 20 03]; /*20130702 tracy change from 09 to 02 for set LDO */
+		qcom,panel-phy-timingSettings = [A2 88 12 00 8E 92 16 8A 0E 03 04 00]; /* tracy for TCL LCM */
+		qcom,panel-phy-strengthCtrl = [ff 06];
+		qcom,panel-phy-bistCtrl = [03 03 00 00 0f 00];
+		qcom,panel-phy-laneConfig =
+					[80 45 00 00 01 66 /*lane0**/
+					80 45 00 00 01 66 /*lane1*/
+					80 45 00 00 01 66 /*lane2*/
+					80 45 00 00 01 66 /*lane3*/
+					40 67 00 00 01 88]; /*Clk*/
+
+		qcom,on-cmds-dsi-state = "DSI_LP_MODE";
+		/* tracy for TCL LCM ++*/
+	qcom,panel-on-cmds = [
+		                      39 01 00 00 00 04 
+                           b9 ff 83 79
+                          39 01 00 00 00 03 
+                           ba 51 93
+		                      39 01 00 00 00 20 
+                           B1 00 50 24 EA 90 08
+                           11 11 71 2F 37 9A 1A 
+                           22 1B 6E F1 00 E6 E6 
+                           E6 E6 E6 00 04 05 0A 
+                           0B 04 05 6F
+                          39 01 00 00 00 0E 
+                           B2 00 00 3c 08 12 19 
+                           22 00 FF 08 0C 19 20
+                          39 01 00 00 00 20 
+                           B4 80 00 00 32 10 03 
+                           32 13 29 32 10 08 35 
+                           01 28 07 37 00 30 08   /*20130702 tracy change for fix TCL LCM upside white lines*/
+                           36 36 04 00 40 08 28 
+                           08 30 30 04
+                          39 01 00 00 00 30 
+                           D5 00 00 0A 00 01 05 
+                           00 00 18 88 99 88 01 
+                           45 88 88 01 45 23 67
+                           88 88 88 88 88 88 88 
+                           99 54 10 88 88 76 32
+                           54 10 88 88 88 88 88 
+                           00 00 00 00 00 00
+                          39 01 00 00 00 04 
+                            DE 05 70 04
+                          39 01 00 00 00 24 
+                           E0 79 07 12 14 32 34 3F
+                           42 53 06 12 10 14 16 14 
+                           15 11 14 07 12 14 32 34
+                           3F 42 53 06 12 10 14 16 
+                           14 15 11 14 
+                          15 01 00 00 00 02 cc 0e
+                          39 01 00 00 00 05 
+                            B6 00 87 00 87
+                          
+                          05 01 00 00 78 02 11 00
+                          05 01 00 00 32 02 29 00];
+				/* tracy for TCL LCM --*/
+		qcom,panel-off-cmds = [05 01 00 00 32 02 28 00
+					05 01 00 00 78 02 10 00];
+		qcom,off-cmds-dsi-state = "DSI_LP_MODE";
+	};
+};

@@ -1,0 +1,13 @@
+####################################################################################
+## This configuration only available for userdebug build if NEW configuration for it
+## The rule of configuration for eng/userdebug/user build as below:
+##
+## eng build:msm8610_defconfig 
+## userdebug build : msm8610-perf_defconfig + msm8610_userdebug_defconfig
+## user build : msm8610-perf_defconfig
+##
+## So , if same configuration in userdebug and user build , then the file should be
+## temp , The configuration in the file will replace same configuration in 
+## msm8610-perf_defconfig
+####################################################################################
+CONFIG_IKCONFIG_PROC=y
