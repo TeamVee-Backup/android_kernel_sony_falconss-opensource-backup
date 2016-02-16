@@ -816,7 +816,7 @@ static ssize_t akm8963_sysfs_enable_show(
 	flag = ((akm->enable_flag >> pos) & 1);
 	mutex_unlock(&akm->val_mutex);
 
-	return snprintf(buf,sizeof(buf), "%d\n", flag);
+	return sprintf(buf, "%d\n", flag);
 }
 
 static ssize_t akm8963_sysfs_enable_store(
@@ -894,7 +894,7 @@ static ssize_t akm8963_sysfs_delay_show(
 	val = akm->delay[pos];
 	mutex_unlock(&akm->val_mutex);
 
-	return snprintf(buf,sizeof(buf), "%lld\n", val);
+	return sprintf(buf, "%lld\n", val);
 }
 
 static ssize_t akm8963_sysfs_delay_store(
@@ -1019,7 +1019,7 @@ static ssize_t akm8963_bdata_show(
 	memcpy(&rbuf, akm->sense_data, sizeof(rbuf));
 	mutex_unlock(&akm->sensor_mutex);
 
-	return snprintf(buf,sizeof(buf),
+	return sprintf(buf,
 		"0x%02X,0x%02X,0x%02X,0x%02X,"
 		"0x%02X,0x%02X,0x%02X,0x%02X\n",
 		rbuf[0],rbuf[1],rbuf[2],rbuf[3],
@@ -1046,7 +1046,7 @@ static ssize_t akm8963_asa_show(
 	if (err < 0)
 		return err;
 
-	return snprintf(buf, sizeof(buf),"0x%02X,0x%02X,0x%02X\n",
+	return sprintf(buf, "0x%02X,0x%02X,0x%02X\n",
 		asa[0], asa[1], asa[2]);
 }
 #endif

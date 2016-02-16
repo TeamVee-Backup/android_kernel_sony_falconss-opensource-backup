@@ -123,16 +123,15 @@ static ssize_t getDeviceInfor(struct file* file, struct kobject* kobj, struct bi
 {
 	struct device* dev = container_of(kobj, struct device, kobj);
 	sensor_device* sDev = dev_get_drvdata(dev);
-	ssize_t siz = sizeof(struct device_infor);
+	ssize_t siz;
 	if(!sDev){
 		return -EPERM;
 	}
 	mutex_lock(&sDev->mutex);
-	if(sDev->infor && siz == size){
-		memcpy(buf, sDev->infor, siz);
-	}else{
-		memset(buf, 0, siz);
-	}
+	if (sDev->infor)
+		siz = memory_read_from_buffer(buf, size, &pos, sDev->infor, sizeof(*sDev->infor));
+	else
+		siz = 0;
 	mutex_unlock(&sDev->mutex);
 	return siz;
 }
