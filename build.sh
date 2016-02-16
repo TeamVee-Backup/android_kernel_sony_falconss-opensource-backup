@@ -73,6 +73,7 @@ if [ -f .config ]; then
 
 	if [ -f arch/$ARCH/boot/zImage ]; then
 		buildprocesscheck="Already Done!"
+		. genboot.sh
 	else
 		buildprocesscheck="Something goes wrong"
 	fi
