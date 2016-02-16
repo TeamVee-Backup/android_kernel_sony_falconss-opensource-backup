@@ -5,11 +5,17 @@
 
 rm -rf boot-creator/*.img
 
+if [ "$1" == "-p" ]; then
+    PREBUILT="--qcdt boot-creator/dtimg/$VARIANT-dt"
+else
+    PREBUILT="--dt_dir arch/arm/boot"
+fi
+
 bootcreator(){
 ./boot-creator/tool/mkqcdtbootimg \
     --kernel arch/arm/boot/zImage \
     --ramdisk boot-creator/ramdisk/$VARIANT-ramdisk \
-    --dt_dir arch/arm/boot \
+    $PREBUILT \
     --cmdline "`cat boot-creator/ramdisk/cmdline`" \
     --base 0x00000000 \
     --ramdisk_offset 0x2008000 \
@@ -19,11 +25,16 @@ bootcreator(){
     -o boot-creator/$VARIANT-boot.img
 }
 
+
+
 VARIANT="single"
+cp boot-creator/ramdisk/$VARIANT-ramdisk boot-creator/ramdisk/$VARIANT-ramdisk.gz
 bootcreator
 
 VARIANT="dual"
+cp boot-creator/ramdisk/$VARIANT-ramdisk boot-creator/ramdisk/$VARIANT-ramdisk.gz
 bootcreator
 
 VARIANT="tv"
+cp boot-creator/ramdisk/$VARIANT-ramdisk boot-creator/ramdisk/$VARIANT-ramdisk.gz
 bootcreator
