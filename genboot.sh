@@ -1,5 +1,9 @@
 #!/bin/bash
 # Commands for Build boot.img of Xperia E1 by mpersano <mpr@fzort.org>
+# RAMDisk is from Xperia E1 Single
+# This a force boot.img, i can't make a live boot changer like in LG, because bootloader
+
+rm -rf boot-creator/boot.img
 
 ./boot-creator/tool/mkqcdtbootimg \
     --kernel arch/arm/boot/zImage \
