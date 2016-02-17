@@ -164,6 +164,7 @@ if ! [ "$defconfig" == "" ]; then
 		zipdirout="zip-creator-out"
 
 		cp -r zip-creator/binary $zipdirout
+		cp -r drivers/staging/prima/firmware_bin/* $zipdirout/wifi
 
 		./zip-creator/tool/mkqcdtbootimg \
 		    --kernel arch/arm/boot/zImage \
