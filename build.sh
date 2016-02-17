@@ -12,10 +12,39 @@
 # Main Process - Start
 
 maindevice() {
-defconfig="cyanogenmod_falconss_defconfig"
-name="XperiaE1"
-make $defconfig &> /dev/null | echo "$x - $name, setting..."
-unset buildprocesscheck defconfigcheck
+clear
+echo "-${bldgrn}Device choice${txtrst}-"
+echo
+bname=$name
+bvariant=$variant
+bdefconfig=$defconfig
+unset name variant defconfig
+echo "${bldred}Xperia E1${txtrst}"
+echo "0) Single"
+echo "1) Dual"
+echo "2) TV"
+echo
+echo "e) Exit"
+echo
+read -p "Choice: " -n 1 -s x
+case "$x" in
+	0 ) variant="Single";;
+	1 ) variant="Dual";;
+	2 ) variant="TV";;
+	e ) ;;
+	* ) ops;;
+esac
+if [ "$variant" == "" ]; then
+	name=$bname
+	variant=$bvariant
+	defconfig=$bdefconfig
+	unset bname bvariant bdefconfig
+else
+	defconfig="cyanogenmod_falconss_defconfig"
+	name="XperiaE1"
+	make $defconfig &> /dev/null | echo "$x - $name $variant, setting..."
+	unset buildprocesscheck zippackagecheck defconfigcheck
+fi
 }
 
 maintoolchain() {
@@ -134,8 +163,19 @@ if ! [ "$defconfig" == "" ]; then
 
 		zipdirout="zip-creator-out"
 
-		cp -r zip-creator $zipdirout
-		cp arch/$ARCH/boot/zImage $zipdirout
+		cp -r zip-creator/binary $zipdirout
+
+		./zip-creator/tool/mkqcdtbootimg \
+		    --kernel arch/arm/boot/zImage \
+		    --ramdisk zip-creator/ramdisk/$variant-ramdisk \
+		    --dt_dir arch/arm/boot \
+		    --cmdline "`cat zip-creator/ramdisk/cmdline`" \
+		    --base 0x00000000 \
+		    --ramdisk_offset 0x2000000 \
+		    --kernel_offset 0x10000 \
+		    --tags_offset 0x01e00000 \
+		    --pagesize 2048 \
+		    -o $zipdirout/boot.img
 
 		echo "${name}" >> $zipdirout/device.prop
 		echo "${variant}" >> $zipdirout/device.prop
