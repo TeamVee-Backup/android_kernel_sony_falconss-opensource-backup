@@ -5,9 +5,14 @@
 
 rm -rf boot-creator/*.img
 
-if [ "$1" == "-b" ]
-    then PREBUILT="--dt_dir arch/arm/boot"
-    else PREBUILT="--qcdt boot-creator/dtimg/$VARIANT-dt"
+if [ "$1" == "-b" ]; then
+    echo
+    echo "You may have problems with this, use with caution"
+    echo "We will fix this later for CM builds"
+    echo
+    PREBUILT="--dt_dir arch/arm/boot"
+else
+    PREBUILT="--qcdt boot-creator/dtimg/$VARIANT-dt"
 fi
 
 makeqcdtbootimg(){
