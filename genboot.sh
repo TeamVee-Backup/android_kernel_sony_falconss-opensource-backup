@@ -5,22 +5,12 @@
 
 rm -rf boot-creator/*.img
 
-if [ "$1" == "-b" ]; then
-    echo
-    echo "You may have problems with this, use with caution"
-    echo "We will fix this later for CM builds"
-    echo
-    PREBUILT="--dt_dir arch/arm/boot"
-else
-    PREBUILT="--qcdt boot-creator/dtimg/$VARIANT-dt"
-fi
-
 makeqcdtbootimg(){
 cp boot-creator/ramdisk/$1-ramdisk boot-creator/ramdisk/$1-ramdisk.gz
 ./boot-creator/tool/mkqcdtbootimg \
     --kernel arch/arm/boot/zImage \
     --ramdisk boot-creator/ramdisk/$1-ramdisk \
-    $PREBUILT \
+    --dt_dir arch/arm/boot \
     --cmdline "`cat boot-creator/ramdisk/cmdline`" \
     --base 0x00000000 \
     --ramdisk_offset 0x2000000 \
