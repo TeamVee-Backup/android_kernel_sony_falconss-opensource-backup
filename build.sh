@@ -44,7 +44,7 @@ else
 	fi
 fi
 if ! [ "$CROSS_COMPILE" == "" ]
-	then unset buildprocesscheck
+	then unset buildprocesscheck zippackagecheck
 fi
 }
 
@@ -73,7 +73,7 @@ if [ -f .config ]; then
 
 	if [ -f arch/$ARCH/boot/zImage ]; then
 		buildprocesscheck="Already Done!"
-		. genboot.sh
+		zippackagecheck="Ready to do!"
 	else
 		buildprocesscheck="Something goes wrong"
 	fi
@@ -125,6 +125,71 @@ fi
 
 # Build Process - End
 
+# Zip Process - Start
+
+zippackage() {
+if ! [ "$defconfig" == "" ]; then
+	if [ -f arch/$ARCH/boot/zImage ]; then
+		echo "$x - Ziping $customkernel"
+
+		zipdirout="zip-creator-out"
+
+		cp -r zip-creator $zipdirout
+		cp arch/$ARCH/boot/zImage $zipdirout
+
+		echo "${name}" >> $zipdirout/device.prop
+		echo "${variant}" >> $zipdirout/device.prop
+		echo "${release}" >> $zipdirout/device.prop
+
+		mkdir $zipdirout/modules
+		find . -name *.ko | xargs cp -a --target-directory=$zipdirout/modules/ &> /dev/null
+		${CROSS_COMPILE}strip --strip-unneeded $zipdirout/modules/*.ko
+
+		cd $zipdirout
+		zip -r $zipfile * -x .gitignore &> /dev/null
+		cd ..
+
+		cp $zipdirout/$zipfile zip-creator
+		rm -rf $zipdirout
+
+		zippackagecheck="Already Done!"
+	else
+		ops
+	fi
+else
+	ops
+fi
+}
+
+# Zip Process - End
+
+# ADB - Start
+
+adbcopy() {
+if [ -f zip-creator/$zipfile ]; then
+	clear
+	echo "-Coping $customkernel-"
+	echo
+	echo "You want to copy to Internal or External Card?"
+	echo "i) For Internal"
+	echo "e) For External"
+	echo
+	echo "q) Exit"
+	echo
+	read -p "Choice: " -n 1 -s x
+	case "$x" in
+		i ) echo "Coping to Internal Card..."; adb shell rm -rf /storage/sdcard0/$zipfile &> /dev/null; adb push zip-creator/$zipfile /storage/sdcard0/$zipfile &> /dev/null;;
+		e ) echo "Coping to External Card..."; adb shell rm -rf /storage/sdcard1/$zipfile &> /dev/null; adb push zip-creator/$zipfile /storage/sdcard1/$zipfile &> /dev/null;;
+		q ) ;;
+		* ) ops;;
+	esac
+else
+	ops
+fi
+}
+
+# ADB - End
+
 # Menu - Start
 
 buildsh() {
@@ -132,17 +197,24 @@ clear
 echo "Simple Linux Kernel Build Script ($(date +%d"/"%m"/"%Y))"
 echo "$customkernel $kernelversion.$kernelpatchlevel.$kernelsublevel - $kernelname"
 echo "-${bldred}Clean${txtrst}-"
-echo "1) Kernel | ${bldred}$cleankernelcheck${txtrst}"
+echo "1) Zip Packages | ${bldred}$cleanzipcheck${txtrst}"
+echo "2) Kernel       | ${bldred}$cleankernelcheck${txtrst}"
 echo "-${bldgrn}Main Process${txtrst}-"
-echo "2) Device Choice    | ${bldgrn}$name${txtrst}"
-echo "3) Toolchain Choice | ${bldgrn}$ToolchainCompile${txtrst}"
+echo "3) Device Choice    | ${bldgrn}$name $variant${txtrst}"
+echo "4) Toolchain Choice | ${bldgrn}$ToolchainCompile${txtrst}"
 echo "-${bldyel}Build Process${txtrst}-"
-echo "4) Build Kernel | ${bldyel}$buildprocesscheck${txtrst}"
+echo "5) Build Kernel      | ${bldyel}$buildprocesscheck${txtrst}"
 if ! [ "$BUILDTIME" == "" ]
-	then echo "   Build Time   | ${bldcya}$(($BUILDTIME / 60))m$(($BUILDTIME % 60))s${txtrst}"
+	then echo "   Build Time        | ${bldcya}$(($BUILDTIME / 60))m$(($BUILDTIME % 60))s${txtrst}"
+fi
+echo "6) Build Zip Package | ${bldyel}$zippackagecheck${txtrst}"
+if [ -f zip-creator/$zipfile ]
+	then echo "   Zip Saved         | ${bldcya}zip-creator/$zipfile${txtrst}"
 fi
 echo "-${bldblu}Special Menu${txtrst}-"
-echo "5) Update Defconfig | ${bldblu}$defconfigcheck${txtrst}"
+echo "7) Update Defconfig                          | ${bldblu}$defconfigcheck${txtrst}"
+echo "8) Copy Latest Build Zip to device - Via Adb | ${bldblu}$zipcopycheck${txtrst}"
+echo "9) Reboot device to recovery"
 echo "-${bldmag}Options${txtrst}-"
 echo "o) View Build Output | $buildoutput"
 echo "g) Git Gui  |  k) GitK  |  s) Git Push  |  l) Git Pull"
@@ -150,11 +222,15 @@ echo "q) Quit"
 echo
 read -n 1 -p "${txtbld}Choice: ${txtrst}" -s x
 case $x in
-	1) echo "$x - Cleaning Kernel"; make clean mrproper &> /dev/null; unset buildprocesscheck name defconfig BUILDTIME;;
-	2) maindevice;;
-	3) maintoolchain;;
-	4) buildprocess;;
-	5) updatedefconfig;;
+	1) echo "$x - Cleaning Zips"; rm -rf zip-creator/*.zip; unset zippackagecheck;;
+	2) echo "$x - Cleaning Kernel"; make clean mrproper &> /dev/null; unset buildprocesscheck name variant defconfig BUILDTIME;;
+	3) maindevice;;
+	4) maintoolchain;;
+	5) buildprocess;;
+	6) zippackage;;
+	7) updatedefconfig;;
+	8) adbcopy;;
+	9) echo "$x - Rebooting to Recovery..."; adb reboot recovery;;
 	o) if [ "$buildoutput" == "OFF" ]; then unset buildoutput; else buildoutput="OFF"; fi;;
 	q) echo "$x - Ok, Bye!"; break;;
 	g) echo "$x - Opening Git Gui"; git gui;;
@@ -195,27 +271,48 @@ elif [ -e build.sh ]; then
 		if [ "$buildoutput" == "" ]
 			then buildoutput="${bldmag}ON${txtrst}"
 		fi
+		if [ "$zippackagecheck" == "Already Done!" ]
+			then zipcopycheck="Ready to do!"
+			else zipcopycheck="Use 6 first"
+		fi
 		if [ "$buildprocesscheck" == "" ]
 			then buildprocesscheck="Ready to do!"
 		fi
+		if [ "$buildprocesscheck" == "Ready to do!" ]
+			then zippackagecheck="Use 5 first"
+		fi
+		if [ "$buildprocesscheck" == "Already Done!" ]; then
+			if ! [ "$zippackagecheck" == "Already Done!" ]
+				then zippackagecheck="Ready to do!"
+			fi
+		fi
 		if [ "$CROSS_COMPILE" == "" ]
-			then buildprocesscheck="Use 3 first"
+			then buildprocesscheck="Use 4 first"
 		fi
 		if [ "$defconfig" == "" ]; then
-			buildprocesscheck="Use 2 first"
-			defconfigcheck="Use 2 first"
+			buildprocesscheck="Use 3 first"
+			defconfigcheck="Use 3 first"
 		else
 			defconfigcheck="Ready to do!"
+		fi
+		if [ -f zip-creator/*.zip ]
+			then unset cleanzipcheck
+			else cleanzipcheck="Already Done!"
 		fi
 		if [ -f .config ]
 			then unset cleankernelcheck
 			else cleankernelcheck="Already Done!"
+		fi
+		if [ -f .version ]
+			then build=$(cat .version)
+			else build="0"
 		fi
 		kernelversion=`cat Makefile | grep VERSION | cut -c 11- | head -1`
 		kernelpatchlevel=`cat Makefile | grep PATCHLEVEL | cut -c 14- | head -1`
 		kernelsublevel=`cat Makefile | grep SUBLEVEL | cut -c 12- | head -1`
 		kernelname=`cat Makefile | grep NAME | cut -c 8- | head -1`
 		release=$(date +%d""%m""%Y)
+		zipfile="$customkernel-$name-$variant-$release-$build.zip"
 
 		buildsh
 	done

@@ -1,0 +1,54 @@
+#!/sbin/sh
+
+# Get values used in original zip
+interface="${1}"
+updater_fd="${2}"
+zipfile="${3}"
+
+# Set ui_print
+ui_print() {
+    echo -en "ui_print ${1}\n\n" > /proc/self/fd/"${updater_fd}"
+}
+
+# Start main process
+START=$(date +"%s")
+
+rm -rf /tmp/kernel/
+mkdir -p /tmp/kernel/
+cd /tmp/kernel/
+
+unzip "${zipfile}"
+
+name="$(sed -n '1p' /tmp/kernel/device.prop)"
+variant="$(sed -n '2p' /tmp/kernel/device.prop)"
+release="$(sed -n '3p' /tmp/kernel/device.prop)"
+
+ui_print "TeamHackLG Presents"
+ui_print "THLG CAF Kernel 3.4"
+ui_print "For ${name} ${variant}"
+ui_print "Release ${release}"
+
+if [ `mount | grep /system | wc -l` -ge 1 ]; then umount /system; ui_print "Desmounting /system just in case"; fi
+mount /system
+
+cp /tmp/kernel/modules/*.ko /system/lib/modules/
+busybox chmod 644 /system/lib/modules/*.ko
+
+chmod 777 /tmp/kernel/mkbootimg
+chmod 777 /tmp/kernel/unpackbootimg
+
+dd if=/dev/block/mmcblk0p9 of=/tmp/kernel/boot.img
+/tmp/kernel/unpackbootimg /tmp/kernel/boot.img
+/tmp/kernel/mkbootimg --kernel /tmp/kernel/zImage --ramdisk /tmp/kernel/boot.img-ramdisk.gz --cmdline "$(cat /tmp/kernel/boot.img-cmdline)" --base "$(cat /tmp/kernel/boot.img-base)" -o /tmp/kernel/newboot.img
+
+ui_print "Flashing THLG CAF Kernel!"
+dd if=/tmp/kernel/newboot.img of=/dev/block/mmcblk0p9
+
+umount /system
+
+END=$(date +"%s")
+BUILDTIME=$(($END - $START))
+
+rm -rf /tmp/kernel/
+
+ui_print "Done in $(($BUILDTIME % 60)) seconds."
