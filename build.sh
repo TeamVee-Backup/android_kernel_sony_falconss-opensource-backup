@@ -167,7 +167,7 @@ if ! [ "$defconfig" == "" ]; then
 		mkdir $zipdirout/modules
 		mkdir $zipdirout/wifi/
 
-		cp -r zip-creator/binary $zipdirout
+		cp -r zip-creator/binary/* $zipdirout/
 		cp drivers/staging/prima/firmware_bin/* $zipdirout/wifi/
 
 		./zip-creator/tool/mkqcdtbootimg \
