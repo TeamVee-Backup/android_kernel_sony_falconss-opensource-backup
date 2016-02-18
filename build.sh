@@ -94,8 +94,8 @@ if [ -f .config ]; then
 
 	START=$(date +"%s")
 	if [ "$buildoutput" == "OFF" ]
-		then make zImage msm8610-v2-mtp.dtb modules -j${NR_CPUS} &>/dev/null | loop
-		else make zImage msm8610-v2-mtp.dtb modules -j${NR_CPUS}
+		then make -j${NR_CPUS} &>/dev/null | loop
+		else make -j${NR_CPUS}
 	fi
 	END=$(date +"%s")
 	BUILDTIME=$(($END - $START))
