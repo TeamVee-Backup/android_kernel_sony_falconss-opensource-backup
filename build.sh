@@ -162,9 +162,13 @@ if ! [ "$defconfig" == "" ]; then
 		echo "$x - Ziping $customkernel"
 
 		zipdirout="zip-creator-out"
+		rm -rf $zipdirout
+		mkdir $zipdirout
+		mkdir $zipdirout/modules
+		mkdir $zipdirout/wifi/
 
 		cp -r zip-creator/binary $zipdirout
-		cp -r drivers/staging/prima/firmware_bin/* $zipdirout/wifi
+		cp drivers/staging/prima/firmware_bin/* $zipdirout/wifi/
 
 		./zip-creator/tool/mkqcdtbootimg \
 		    --kernel arch/arm/boot/zImage \
@@ -182,12 +186,11 @@ if ! [ "$defconfig" == "" ]; then
 		echo "${variant}" >> $zipdirout/device.prop
 		echo "${release}" >> $zipdirout/device.prop
 
-		mkdir $zipdirout/modules
 		find . -name *.ko | xargs cp -a --target-directory=$zipdirout/modules/ &> /dev/null
 		${CROSS_COMPILE}strip --strip-unneeded $zipdirout/modules/*.ko
 
 		cd $zipdirout
-		zip -r $zipfile * -x .gitignore &> /dev/null
+		zip -r $zipfile *
 		cd ..
 
 		cp $zipdirout/$zipfile zip-creator
