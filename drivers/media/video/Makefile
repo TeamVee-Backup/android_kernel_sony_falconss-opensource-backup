@@ -209,11 +209,8 @@ obj-$(CONFIG_VIDEO_IR_I2C)  += ir-kbd-i2c.o
 
 obj-y	+= davinci/
 
-#[Arima Edison] add isdbt driver++
-ifeq ($(TARGET_PRODUCT),falcon_dtv) 
 obj-y	+= nmi/nm32x/ 
-endif
-#[Arima Edison] add isdbt driver--
+
 obj-$(CONFIG_ARCH_OMAP)	+= omap/
 
 ccflags-y += -I$(srctree)/drivers/media/dvb/dvb-core
