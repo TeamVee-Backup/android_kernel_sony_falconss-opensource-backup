@@ -38,7 +38,7 @@ mount /system
 mount /data
 
 ui_print "Copying the modules to system"
-rm -rf /system/lib/modules/wlan.ko /system/lib/modules/pronto/pronto_wlan.ko
+rm -rf /system/lib/modules/*.ko /system/lib/modules/pronto/pronto_wlan.ko
 
 cp /tmp/kernel/modules/*.ko /system/lib/modules/
 
